@@ -4,14 +4,11 @@ Um chat em python utilizando a interface socket para comunicação entre os clie
 
 ## Clonando o repositório
 
----
-```
+```python
 git clone https://github.com/maycondsn/chat-cli-em-python.git
 ```
 
 ## Run
-
----
 
 ### Rodar o servidor
 
