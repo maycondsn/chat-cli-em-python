@@ -1,9 +1,10 @@
 import socket
 from _thread import *
+from color import colored
 
 # Definindo o servidor e a porta para a conexão
 HOST = '127.0.0.1'
-PORT = 33333
+PORT = 3333
 clients = []
 
 # Iniciando um objeto socket
@@ -51,7 +52,7 @@ def thread_client(client):
     # receber mensagens do client
     while True:
         try:
-            username = client.recv(2048).decode('utf-8')
+            username = colored(client.recv(2048).decode('utf-8'))
             clients.append((username, client))
             send_message_to_all(f'{username} online!')
 
