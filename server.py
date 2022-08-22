@@ -3,7 +3,7 @@ from _thread import *
 
 # Definindo o servidor e a porta para a conexão
 HOST = '127.0.0.1'
-PORT = 3333
+PORT = 33333
 clients = []
 
 # Iniciando um objeto socket
@@ -25,10 +25,11 @@ def send_message_to_all(message):
         send_messages_to_client(i[1], message)
 
 
-def list_clients_connected(client):
+def list_clients_connected(client, username):
     for i in clients:
-        message = f'{i[0]} is online!\n'
-        send_messages_to_client(client, message)
+        if (username != i[0]):
+            message = f'{i[0]} is online!\n'
+            send_messages_to_client(client, message)
 
 
 def send_messages_to_client(client, message):
@@ -52,8 +53,9 @@ def thread_client(client):
         try:
             username = client.recv(2048).decode('utf-8')
             clients.append((username, client))
-            send_message_to_all(f'{username} is online!')
-            list_clients_connected(client)
+            send_message_to_all(f'{username} online!')
+
+            list_clients_connected(client, username)
             break
         except:
             print('username is empty')

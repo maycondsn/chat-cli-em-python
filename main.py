@@ -4,7 +4,7 @@ import time
 
 # Definindo o servidor e a porta
 HOST = '127.0.0.1'  # localhost
-PORT = 3333
+PORT = 33333
 
 # Iniciando um objeto socket
 client = socket.socket()
