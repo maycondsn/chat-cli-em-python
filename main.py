@@ -1,57 +1,23 @@
 import socket
-from _thread import *
-import time
+from threading import Thread
 
-# Definindo o servidor e a porta
-HOST = '127.0.0.1'  # localhost
-PORT = 3333
-
-# Iniciando um objeto socket
-client = socket.socket()
-
-
-# aguardar mensagem do servidor
-def listen_for_message_from_server(client):
+def recv_message(): # thread para receber dados do servidor
     while True:
-        message = client.recv(2048).decode('utf-8')
-        print(message)
+        print(sock.recv(1024).decode())
 
+def setup():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-# enviar mensagens ao servidor
-def send_messages_to_server(client):
-    time.sleep(0.5)
+    sock.connect(('localhost', 3333))
 
-    username = input('enter your username: ')
-    client.sendall(username.encode())
-    if (username != ''):
-        while True:
-            message = input('\n')
+    return sock
 
-            if (message == ''):
-                print('empty message')
-                client.close()
-                break
+sock = setup()
 
-            else:
-                response = f'{message}'
-                client.sendall(response.encode())
-    else:
-        print('input a valid username!')
-        client.close()
+sock.sendall(input('nickname: ').encode()) # envia o nickname para o servidor
 
+Thread(target = recv_message, daemon = True).start() # inicializa a thread
 
-def communicate_to_server(client):
-    # dividir o processo
-    start_new_thread(listen_for_message_from_server, (client, ))
-    send_messages_to_server(client)
-
-
-# Tentando se connectar ao servidor
-try:
-    client.connect((HOST, PORT))
-except socket.error as e:
-    print(str(e))
-
-print(f'client online in {HOST}:{PORT}')
-
-communicate_to_server(client)
+while True: # loop para enviar mensagens
+    sock.sendall(input().encode())
