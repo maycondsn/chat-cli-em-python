@@ -4,7 +4,7 @@ import time
 
 # Definindo o servidor e a porta
 HOST = '127.0.0.1'  # localhost
-PORT = 33333
+PORT = 3333
 
 # Iniciando um objeto socket
 client = socket.socket()
@@ -19,18 +19,25 @@ def listen_for_message_from_server(client):
 
 # enviar mensagens ao servidor
 def send_messages_to_server(client):
-    time.sleep(2)
+    time.sleep(0.5)
+
     username = input('enter your username: ')
-    while True:
-        message = input('\nmessage: ')
+    client.sendall(username.encode())
+    if (username != ''):
+        while True:
+            message = input('\n')
 
-        if (message == ''):
-            print('empty message')
-            exit(0)
+            if (message == ''):
+                print('empty message')
+                client.close()
+                break
 
-        else:
-            response = f'{username}: {message}'
-            client.sendall(response.encode())
+            else:
+                response = f'{message}'
+                client.sendall(response.encode())
+    else:
+        print('input a valid username!')
+        client.close()
 
 
 def communicate_to_server(client):
