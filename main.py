@@ -1,10 +1,9 @@
 import socket
 from _thread import *
-import time
 
 # Definindo o servidor e a porta
 HOST = '127.0.0.1'  # localhost
-PORT = 3333
+PORT = 30000
 
 # Iniciando um objeto socket
 client = socket.socket()
@@ -19,25 +18,19 @@ def listen_for_message_from_server(client):
 
 # enviar mensagens ao servidor
 def send_messages_to_server(client):
-    time.sleep(0.5)
 
-    username = input('enter your username: ')
-    client.sendall(username.encode())
-    if (username != ''):
-        while True:
-            message = input('\n')
+    client.sendall((input('\nenter your username: ')).encode())
+    while True:
+        message = input('')
 
-            if (message == ''):
-                print('empty message')
-                client.close()
-                break
+        if (message == ''):
+            print('empty message')
+            client.close()
+            break
 
-            else:
-                response = f'{message}'
-                client.sendall(response.encode())
-    else:
-        print('input a valid username!')
-        client.close()
+        else:
+            response = f'{message}'
+            client.sendall(response.encode())
 
 
 def communicate_to_server(client):
