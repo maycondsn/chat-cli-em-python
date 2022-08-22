@@ -1,72 +1,49 @@
 import socket
-from _thread import *
-from color import colored
+from threading import Thread
 
-# Definindo o servidor e a porta para a conexão
-HOST = '127.0.0.1'
-PORT = 3333
-clients = []
+class Server: # classe para gerenciar o servidor
+    def __init__(self): # inicializa criando uma lista de clientes
+        self.clients = []
 
-# Iniciando um objeto socket
-server = socket.socket()
+    def recv_connection(self): # thread para receber conexoes e adicionar objetos de clientes na lista
+        while True:
+            client, client_addr = sock.accept()
+            client = Client(client, client_addr)
+            self.clients.append(client)
+            Thread(target = client.recv_message).start() # inicialize a thread para receber dados do cliente
 
-# Vincular o objeto ao endereço
-try:
-    server.bind((HOST, PORT))
-except socket.error as e:
-    print(str(e))
+            print(f'[+] [{client_addr[0]}]:{[client_addr[1]]}')
+            server.send_message(client, f'{client.nickname} connected'.encode())
 
-# Botar o servidor em modo de escuta, aguardando uma conexão
-print(f'Server online in {PORT}')
-server.listen()
+    def send_message(self, sender, message): # enviar mensagem para todos os clientes exceto quem enviou a mensagem
+        for client in self.clients:
+            if client != sender:
+                client.client.sendall(message)
 
+class Client: # classe cliente para criar objetos de cliente
+    def __init__(self, client, client_addr):
+        self.client = client
+        self.client_addr = client_addr
+        self.nickname = client.recv(1024).decode()
 
-def send_message_to_all(message):
-    for i in clients:
-        send_messages_to_client(i[1], message)
+    def recv_message(self): # thread para receber mensagens do cliente em questao e enviar para todos os outros
+        while True:
+            try:
+                message = self.client.recv(1024)
+                server.send_message(self, f'{self.nickname}: '.encode() + message)
 
+            except:
+                server.clients.remove(self)
+                server.send_message(self, f'{self.nickname} disconnected'.encode())
+                print(f'[-] [{self.client_addr[0]}]:{[self.client_addr[1]]}')
+                break
 
-def list_clients_connected(client, username):
-    for i in clients:
-        if (username != i[0]):
-            message = f'{i[0]} is online!\n'
-            send_messages_to_client(client, message)
+server = Server() 
 
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-def send_messages_to_client(client, message):
-    print(message)
-    client.sendall(message.encode())
+sock.bind(('localhost', 3333))
+sock.listen(1)
 
-
-def listen_messages(client, username):
-    while True:
-        data = client.recv(2048).decode('utf-8')
-        message = f'[{username}]: {data}'
-        send_message_to_all(message)
-
-
-def thread_client(client):
-    # envia uma mensagem ao cliente conectado
-    client.send(str.encode(str(f'Connected!')))
-
-    # receber mensagens do client
-    while True:
-        try:
-            username = colored(client.recv(2048).decode('utf-8'))
-            clients.append((username, client))
-            send_message_to_all(f'{username} online!')
-
-            list_clients_connected(client, username)
-            break
-        except:
-            print('username is empty')
-            break
-
-    start_new_thread(listen_messages, (client, username))
-
-
-# loop para aceitar as conexões
-while True:
-    client, addres = server.accept()
-    print(f'Connected to {addres[0]}:{addres[1]}')
-    start_new_thread(thread_client, (client, ))
+Thread(target = server.recv_connection).start() # inicializa a thread para receber conexoes
