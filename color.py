@@ -23,6 +23,10 @@ def colored(string):
     return (f'{get_random_color()}{string}{get_reset()}')
 
 
+def get_color(color):
+    return att[color]
+
+
 def get_random_color():
     x = randint(0, 13)
     return f'{att[x][1]}'

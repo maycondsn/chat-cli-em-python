@@ -3,7 +3,7 @@ from _thread import *
 
 # Definindo o servidor e a porta
 HOST = '127.0.0.1'  # localhost
-PORT = 30000
+PORT = 33333
 
 # Iniciando um objeto socket
 client = socket.socket()
@@ -13,7 +13,13 @@ client = socket.socket()
 def listen_for_message_from_server(client):
     while True:
         message = client.recv(2048).decode('utf-8')
-        print(message)
+        if (message != 'quit!'):
+            print(message)
+        else:
+            print('hello')
+            client.shutdown(socket.SHUT_RDWR)
+            client.close()
+            break
 
 
 # enviar mensagens ao servidor
@@ -24,7 +30,8 @@ def send_messages_to_server(client):
         message = input('')
 
         if (message == ''):
-            print('empty message')
+            print('you are offline')
+            client.sendall('quit()'.encode())
             client.close()
             break
 
